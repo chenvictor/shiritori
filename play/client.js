@@ -13,6 +13,8 @@ const Client = new function() {
     let lobbyId = null;
     let clientId = null;
 
+    let clientName = null;
+
     this.init = function(_lobby, _client) {
         lobbyId = _lobby;
         clientId = _client;
@@ -22,14 +24,14 @@ const Client = new function() {
         SSE = new EventSource(SSE_URL + "lobbyId=" + lobbyId + "&playerId=" + clientId);
         SSE.onmessage = onSSE;
         SSE.onopen = function(e) {
-            console.debug("SSE opened");
+            console.debug("SSE attached");
 
             let main = document.getElementById("main");
             main.classList.remove("invisible");
             main.classList.add("visible");
         };
         SSE.onerror = function(e) {
-            console.debug("SSE Error");
+            console.debug("SSE Error, detached");
         }
     };
 
@@ -59,16 +61,17 @@ const Client = new function() {
         }
     };
 
-    let init = function(data) {
+    let init = (data) => {
         let lobbyName = document.getElementById("lobbyName");
         // noinspection JSUnresolvedVariable
         lobbyName.innerHTML = data.lobbyName;
         let displayName = document.getElementById("displayName");
         displayName.innerHTML = data.playerName;
+        clientName = data.playerName;
         setPlayers(data);
     };
 
-    let setPlayers = function(data) {
+    let setPlayers = (data) => {
         let listDiv = document.getElementById("playerList");
         listDiv.innerHTML = ""; //Empties list
         let players = data.playerList;
@@ -77,6 +80,9 @@ const Client = new function() {
             let item = document.createElement("li");
             item.classList.add("list-group-item");
             item.innerHTML = p;
+            if (p === clientName) {
+                item.innerHTML = "[" + item.innerHTML + "]";
+            }
             listDiv.appendChild(item);
         }
         let countDiv = document.getElementById("playerCount");

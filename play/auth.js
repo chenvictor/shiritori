@@ -69,7 +69,7 @@ const Auth = new function() {
     };
 
     let onXHRResponse = function(res) {
-        console.log("Response received: %o", res);
+        console.debug("Response received: %o", res);
         switch (res.response) {
             case INVALID_LOBBY:
                 $('#authModal').modal('hide');
