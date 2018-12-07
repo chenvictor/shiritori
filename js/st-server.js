@@ -1,5 +1,7 @@
 const ShiriServer = new function() {
 
+    const SUCCESS = 33;
+
     /**
      * Requests a lobby from the server
      * @param payload       payload to send
@@ -37,7 +39,11 @@ const ShiriServer = new function() {
         xhr.onload = function() {
             if (xhr.status === 200) {
                 let json = JSON.parse(xhr.responseText);
-                onResult(json.message)
+                if (json.response === SUCCESS) {
+                    onResult(json.message)
+                } else {
+                    onResult(false);
+                }
             } else {
                 console.log('Request failed: ' + xhr.status);
                 onResult(false);
@@ -53,6 +59,27 @@ const ShiriServer = new function() {
         });
         console.log("Sending: " + stringified);
         xhr.send(stringified);
+    };
+
+    this.requestClient = function(lobbyId, password, displayName, callback) {
+        let xhr = openXHR();
+
+        xhr.onload = () => {
+            if (xhr.status === 200) {
+                callback(JSON.parse(xhr.responseText));
+            } else {
+                callback(false);
+            }
+        };
+        xhr.onerror = () => {
+            callback(false);
+        };
+        xhr.send(JSON.stringify({
+            type: "join",
+            lobbyId: lobbyId,
+            pass: password,
+            displayName: displayName
+        }));
     };
 
     /**

@@ -2,6 +2,9 @@ const PlayForm = new function() {
     const ERROR_LOBBY_BLANK = 0;
     const ERROR_PASS_BLANK = 1;
 
+
+    const RESPONSE_SUCCESS = 33;
+
     let playModal;
     let loadingModal;
     let lobby;
@@ -72,8 +75,13 @@ const PlayForm = new function() {
                 CustomAlert.showMessage(msg);
             }, (response) => {
                 loadingModal.modal('hide');
-                console.log("Success: " + response);
-                CustomAlert.showMessage(response);
+                let parsed = JSON.parse(response);
+                if (parsed.response === RESPONSE_SUCCESS) {
+                    let id = parsed.message;
+                    window.location.assign("play/index.html?lobbyId=" + id);
+                } else {
+                    CustomAlert.showMessage(response);
+                }
             });
         }, 500);
     };

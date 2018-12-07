@@ -80,16 +80,34 @@
     </div>
 </div>
 
-<!--Loading Modal-->
-<div class="modal fade" id="loadingModal" tabindex="-1" role="dialog" aria-labelledby="loadingModalTitle" aria-hidden="true"
+<!--Auth Modal-->
+<div class="modal fade" id="authModal" tabindex="-1" role="dialog" aria-labelledby="authModalTitle" aria-hidden="true"
      data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="loadingModalTitle">Loading</h5>
+                <h5 class="modal-title" id="authModalTitle">Authentication</h5>
             </div>
             <div class="modal-body">
-                <div class="loader m-auto"></div>
+                <h6>Enter the lobby password, as well as a display name.</h6>
+                <form class="needs-validation" onsubmit="Auth.submit(); return false;" novalidate>
+                    <div class="form-group">
+                        <label for="inputPass">Lobby Password</label>
+                        <input type="password" class="form-control" id="inputPass" placeholder="password123" maxlength="15">
+                        <div class="invalid-feedback">
+                            Invalid password!
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputName">Display Name</label>
+                        <input type="text" class="form-control" id="inputName" aria-describedby="nameHelp" placeholder="display name (Max 20 chars)" maxlength="20">
+                        <div class="invalid-feedback">
+                            Please provide a display name!
+                        </div>
+                        <small id="nameHelp" class="form-text text-muted">A display name so others can identify you.</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Join</button>
+                </form>
             </div>
         </div>
     </div>
@@ -100,10 +118,12 @@
 <div class="vertical-center invisible" id="main">
     <div class="card card-body container">
         <h4>Shiritori</h4>
+        <h5>Lobby: <span id="lobbyName">...</span></h5>
+        <h5>Display Name: <span id="displayName">...</span></h5>
         <hr>
-        <h5>Players (9):</h5>
-        <div class="card p-1" id="playerList">
-            <ul class="list-group list-group-flush">
+        <h5>Players (<span id="playerCount"></span>):</h5>
+        <div class="card p-1">
+            <ul class="list-group list-group-flush" id="playerList">
                 <li class="list-group-item active">Me</li>
                 <li class="list-group-item">Victor</li>
                 <li class="list-group-item">日本人1</li>
@@ -145,16 +165,8 @@
 <script src="../js/loading.js"></script>
 <script src="word-form.js"></script>
 <script src="client.js"></script>
+<script src="auth.js"></script>
 <script>
-    // testing
-
-    let eventSource = new EventSource("https://shiritori.glitch.me/sse", {withCredentials: true});
-    eventSource.onmessage = function(e) {
-        console.log("Event source message: " + e);
-    };
-    eventSource.onopen = function(e) {
-        console.log("opened");
-    };
 
 </script>
 </body>
