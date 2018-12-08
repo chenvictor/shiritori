@@ -1,14 +1,6 @@
 const Client = new function() {
     const SSE_URL = "https://shiritori.glitch.me/sse?";
 
-    const CODE_INIT = 400;
-    const CODE_MISS_LOBBY = 100;
-    const CODE_MISS_PLAYER = 101;
-    const CODE_INVALID_LOBBY = 200;
-    const CODE_INVALID_PLAYER = 201;
-
-    const CODE_PLAYERS_CHANGED = 401;
-
     let SSE = null;
     let lobbyId = null;
     let clientId = null;
@@ -23,70 +15,59 @@ const Client = new function() {
         }
         SSE = new EventSource(SSE_URL + "lobbyId=" + lobbyId + "&playerId=" + clientId);
         SSE.onmessage = onSSE;
-        SSE.onopen = function(e) {
-            console.debug("SSE attached");
-
-            let main = document.getElementById("main");
-            main.classList.remove("invisible");
-            main.classList.add("visible");
-        };
-        SSE.onerror = function(e) {
-            console.debug("SSE Error, detached");
-        }
     };
 
     let onSSE = function(e) {
         let data = JSON.parse(e.data);
         console.debug("SSE Received: %o", data);
         switch(data.response) {
-            case CODE_INIT:
+            case ResponseCode.EVENT.INITIALIZE:
                 init(data);
                 break;
-            case CODE_PLAYERS_CHANGED:
+            case ResponseCode.EVENT.PLAYERS_UPDATED:
                 setPlayers(data);
                 break;
-            case CODE_MISS_LOBBY:
-            case CODE_MISS_PLAYER:
-            case CODE_INVALID_LOBBY:
-            case CODE_INVALID_PLAYER:
-
+            case ResponseCode.EVENT.READY_STATE_RECEIVED:
+                Interface.setReadyButtonEnabled(true);
+                break;
+            case ResponseCode.EVENT.READY_STATE_UPDATED:
+                Interface.setReadyStates(data.readyStates);
+                break;
+            case ResponseCode.MISSING.LOBBY:
+            case ResponseCode.MISSING.PLAYER:
+            case ResponseCode.INVALID.LOBBY_ID:
+            case ResponseCode.INVALID.PLAYER_ID:
                 let main = document.getElementById("main");
                 main.classList.remove("visible");
                 main.classList.add("invisible");
-
-                SSE.close();
                 console.error("Received error, closing SSE");
                 CustomAlert.showMessage("Fatal Error Occurred!");
+                SSE.close();
                 break;
         }
     };
 
     let init = (data) => {
-        let lobbyName = document.getElementById("lobbyName");
-        // noinspection JSUnresolvedVariable
-        lobbyName.innerHTML = data.lobbyName;
-        let displayName = document.getElementById("displayName");
-        displayName.innerHTML = data.playerName;
-        clientName = data.playerName;
+        Interface.setLobbyName(data.lobbyName);
+        Interface.setPlayerName(data.playerName);
         setPlayers(data);
+        Interface.show();
     };
 
     let setPlayers = (data) => {
-        let listDiv = document.getElementById("playerList");
-        listDiv.innerHTML = ""; //Empties list
-        let players = data.playerList;
-        for (let i = 0; i < players.length; i++) {
-            let p = players[i];
-            let item = document.createElement("li");
-            item.classList.add("list-group-item");
-            item.innerHTML = p;
-            if (p === clientName) {
-                item.innerHTML = "[" + item.innerHTML + "]";
-            }
-            listDiv.appendChild(item);
+        Interface.setPlayers(data.playerList);
+    };
+
+    let readyStateTimeout = null;
+
+    this.readyStateChanged = function(state) {
+        if (readyStateTimeout !== null) {
+            clearTimeout(readyStateTimeout);
         }
-        let countDiv = document.getElementById("playerCount");
-        countDiv.innerHTML = players.length;
-    }
+        // Using a timeout to avoid spamming clicks
+        readyStateTimeout = setTimeout(() => {
+            ShiriServer.notifyReadyState(lobbyId, clientId, state);
+        }, 400);
+    };
 
 };

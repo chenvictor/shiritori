@@ -1,7 +1,5 @@
 const ShiriServer = new function() {
 
-    const SUCCESS = 33;
-
     /**
      * Requests a lobby from the server
      * @param payload       payload to send
@@ -39,7 +37,7 @@ const ShiriServer = new function() {
         xhr.onload = function() {
             if (xhr.status === 200) {
                 let json = JSON.parse(xhr.responseText);
-                if (json.response === SUCCESS) {
+                if (json.response === ResponseCode.SUCCESS) {
                     onResult(json.message)
                 } else {
                     onResult(false);
@@ -79,6 +77,16 @@ const ShiriServer = new function() {
             lobbyId: lobbyId,
             pass: password,
             displayName: displayName
+        }));
+    };
+
+    this.notifyReadyState = function(lobbyId, clientId, ready) {
+        let xhr = openXHR();
+        xhr.send(JSON.stringify({
+            type: "ready",
+            lobbyId: lobbyId,
+            clientId: clientId,
+            ready: ready
         }));
     };
 

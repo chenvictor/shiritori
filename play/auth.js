@@ -2,12 +2,6 @@
 
 const Auth = new function() {
 
-    const INVALID_LOBBY = 200;
-    const INCORRECT_PASS = 302;
-    const INVALID_NAME = 204;
-    const NAME_TAKEN = 300;
-    const SUCCESS = 33;
-
     // Fetch the lobby id from query params
     let getLobbyId = function() {
         let query = window.location.search.substring(1);
@@ -71,20 +65,20 @@ const Auth = new function() {
     let onXHRResponse = function(res) {
         console.debug("Response received: %o", res);
         switch (res.response) {
-            case INVALID_LOBBY:
+            case ResponseCode.INVALID.LOBBY_ID:
                 $('#authModal').modal('hide');
                 CustomAlert.showMessage("This game session is invalid or has expired");
                 break;
-            case INCORRECT_PASS:
+            case ResponseCode.FAIL.PASSWORD_WRONG:
                 alert("Password incorrect!");
                 break;
-            case INVALID_NAME:
+            case ResponseCode.INVALID.PLAYER_NAME:
                 alert("Name invalid!");
                 break;
-            case NAME_TAKEN:
+            case ResponseCode.FAIL.NAME_IN_USE:
                 alert("Name is taken, try a different one.");
                 break;
-            case SUCCESS:
+            case ResponseCode.SUCCESS:
                 $('#authModal').modal('hide');
                 Client.init(lobbyId, res.message);
                 break;
