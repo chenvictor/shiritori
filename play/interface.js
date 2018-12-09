@@ -1,8 +1,6 @@
 const Interface = new function() {
 
     const MAIN = document.getElementById("main");
-
-
     const LOBBY_SPAN = document.getElementById("lobbyName");
     const PLAYER_SPAN = document.getElementById("displayName");
     const PLAYER_COUNT = document.getElementById("playerCount");
@@ -10,9 +8,22 @@ const Interface = new function() {
     const WORD_MODAL = $('#playModal');
     const PREV_WORD = document.getElementById("prevWord");
     const WORD_INPUT = document.getElementById("inputWord");
-
     const MSG = document.getElementById("message");
     const READY_BTN = document.getElementById("readyState");
+
+    const SMALL_KANAS = new Set(["ょ", "ゃ", "ゅ"]);
+    let toBigKana = (smol) => {
+        switch(smol) {
+            case "ょ":
+                return "よ";
+            case "ゃ":
+                return "や";
+            case "ゅ":
+                return "ゆ";
+            default:
+                throw smol + " is not a small kana!";
+        }
+    };
 
     let playerName = null;
     let ready = false;
@@ -111,6 +122,10 @@ const Interface = new function() {
             WORD_INPUT.placeholder = "...";
         } else {
             let previous = prevWord.charAt(prevWord.length - 1);
+            if (SMALL_KANAS.has(previous)) {
+                let bef = prevWord.charAt(prevWord.length - 2);
+                previous = "(" + bef + "/" + toBigKana(previous) + ")";
+            }
             PREV_WORD.innerText = prevWord;
             WORD_INPUT.placeholder = previous + "...";
         }
