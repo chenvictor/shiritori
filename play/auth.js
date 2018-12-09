@@ -32,8 +32,6 @@ const Auth = new function() {
 
     let onResult = function(isValid) {
         if (isValid) {
-            // prompt a login
-            console.debug("prompting login");
             $("#authModal").modal('show');
         } else {
             // Notify user
@@ -65,20 +63,26 @@ const Auth = new function() {
     let onXHRResponse = function(res) {
         console.debug("Response received: %o", res);
         switch (res.response) {
-            case ResponseCode.INVALID.LOBBY_ID:
+            case Code.ERROR.LOBBY_DNE:
                 $('#authModal').modal('hide');
                 CustomAlert.showMessage("This game session is invalid or has expired");
                 break;
-            case ResponseCode.FAIL.PASSWORD_WRONG:
-                alert("Password incorrect!");
+            case Code.ERROR.PASS_WRONG:
+                CustomAlert.showMessage("Password incorrect!");
                 break;
-            case ResponseCode.INVALID.PLAYER_NAME:
-                alert("Name invalid!");
+            case Code.INVALID.PLAYER_NAME:
+                CustomAlert.showMessage("Name invalid!");
                 break;
-            case ResponseCode.FAIL.NAME_IN_USE:
-                alert("Name is taken, try a different one.");
+            case Code.ERROR.NAME_IN_USE:
+                CustomAlert.showMessage("Name is taken, try a different one.");
                 break;
-            case ResponseCode.SUCCESS:
+            case Code.ERROR.LOBBY_FULL:
+                CustomAlert.showMessage("Lobby is full!");
+                break;
+            case Code.ERROR.LOBBY_STARTED:
+                CustomAlert.showMessage("Game has already started!");
+                break;
+            case Code.SUCCESS:
                 $('#authModal').modal('hide');
                 Client.init(lobbyId, res.message);
                 break;

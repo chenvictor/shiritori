@@ -73,7 +73,7 @@ const PlayForm = new function() {
             }, (response) => {
                 loadingModal.modal('hide');
                 let parsed = JSON.parse(response);
-                if (parsed.response === ResponseCode.SUCCESS) {
+                if (parsed.response === Code.SUCCESS) {
                     let id = parsed.message;
                     window.location.assign("play/index.html?lobbyId=" + id);
                 } else {

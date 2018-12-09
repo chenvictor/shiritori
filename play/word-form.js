@@ -10,7 +10,9 @@ const WordForm = new function() {
         let val = INPUT.value;
         let valid = validate(val);
         if (valid) {
-            CustomAlert.showMessage("submitted: " + val);
+            Client.submitWord(val);
+            Interface.hideWordModal();
+            FORM.blur();
         } else {
             showError();
         }
@@ -22,13 +24,5 @@ const WordForm = new function() {
 
     let showError = function() {
         INPUT.classList.add("is-invalid");
-    };
-
-    this.disable = function() {
-
-    };
-
-    this.enable = function() {
-
     };
 };

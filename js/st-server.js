@@ -8,7 +8,6 @@ const ShiriServer = new function() {
      */
     this.requestLobby = function(payload, onFail, onSuccess) {
         let xhr = openXHR();
-
         xhr.onload = function() {
             if (xhr.status === 200) {
                 onSuccess(xhr.responseText);
@@ -37,7 +36,7 @@ const ShiriServer = new function() {
         xhr.onload = function() {
             if (xhr.status === 200) {
                 let json = JSON.parse(xhr.responseText);
-                if (json.response === ResponseCode.SUCCESS) {
+                if (json.response === Code.SUCCESS) {
                     onResult(json.message)
                 } else {
                     onResult(false);
@@ -59,6 +58,13 @@ const ShiriServer = new function() {
         xhr.send(stringified);
     };
 
+    /**
+     * Requests a client from the server
+     * @param lobbyId       the lobby to request from
+     * @param password      the lobby password for authentication
+     * @param displayName   display/player name
+     * @param callback      callback to call with the result
+     */
     this.requestClient = function(lobbyId, password, displayName, callback) {
         let xhr = openXHR();
 
@@ -80,6 +86,12 @@ const ShiriServer = new function() {
         }));
     };
 
+    /**
+     * Notify the server of a ready state change
+     * @param lobbyId       lobby id
+     * @param clientId      client id
+     * @param ready         ready state (boolean)
+     */
     this.notifyReadyState = function(lobbyId, clientId, ready) {
         let xhr = openXHR();
         xhr.send(JSON.stringify({
@@ -87,6 +99,23 @@ const ShiriServer = new function() {
             lobbyId: lobbyId,
             clientId: clientId,
             ready: ready
+        }));
+    };
+
+    /**
+     * Submit a word
+     * @param lobbyId       lobby id
+     * @param clientId      client id
+     * @param word          word
+     */
+    this.submitWord = function(lobbyId, clientId, word) {
+        let xhr = openXHR();
+        xhr.send(JSON.stringify({
+            type: "msg",
+            lobbyId: lobbyId,
+            clientId: clientId,
+            subtype: "word",
+            word: word,
         }));
     };
 

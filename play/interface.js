@@ -7,7 +7,11 @@ const Interface = new function() {
     const PLAYER_SPAN = document.getElementById("displayName");
     const PLAYER_COUNT = document.getElementById("playerCount");
     const TABLE_BODY = document.getElementById("playerTableBody");
+    const WORD_MODAL = $('#playModal');
+    const PREV_WORD = document.getElementById("prevWord");
+    const WORD_INPUT = document.getElementById("inputWord");
 
+    const MSG = document.getElementById("message");
     const READY_BTN = document.getElementById("readyState");
 
     let playerName = null;
@@ -41,7 +45,7 @@ const Interface = new function() {
             th.innerHTML += " - (You)"
         }
         let td = document.createElement("td");
-        td.innerHTML = "not ready";
+        td.innerHTML = "Not Ready";
         row.appendChild(th);
         row.appendChild(td);
         TABLE_BODY.appendChild(row);
@@ -96,5 +100,68 @@ const Interface = new function() {
         tr.children[1].innerHTML = state ? "Ready" : "Not Ready";
     };
 
+    this.message = function(msg) {
+        MSG.innerText = msg;
+    };
+
+    this.showWordModal = function(prevWord) {
+        WORD_INPUT.value = "";
+        if (prevWord === null) {
+            PREV_WORD.innerText = "You start!";
+            WORD_INPUT.placeholder = "...";
+        } else {
+            let previous = prevWord.charAt(prevWord.length - 1);
+            PREV_WORD.innerText = prevWord;
+            WORD_INPUT.placeholder = previous + "...";
+        }
+        WORD_MODAL.modal('show');
+    };
+
+    this.hideWordModal = function() {
+        WORD_MODAL.modal('hide');
+    };
+
+    this.gameStart = function() {
+        this.setReadyButtonEnabled(false);
+        this.message("Game Started!");
+    };
+
+    this.gameEnd = function() {
+        this.message("Waiting for players...");
+        //Clear the table body styles
+        let children = TABLE_BODY.children;
+        for (let child of children) {
+            child.classList.remove("lost");
+            child.classList.remove("turn");
+        }
+        this.setReadyButtonEnabled(true);
+        toggleReady();
+    };
+
+    this.playerEliminated = function(player) {
+        //Highlight the player row
+        let children = TABLE_BODY.children;
+        for (let child of children) {
+            if (child.children[0].innerHTML === player) {
+                child.classList.add("lost");
+            }
+        }
+    };
+
+    this.playerTurn = function(player) {
+        //Highlight the player row
+        let children = TABLE_BODY.children;
+        for (let child of children) {
+            if (child.children[0].innerHTML === player) {
+                child.classList.add("turn");
+            } else {
+                child.classList.remove("turn");
+            }
+        }
+    };
+
+    WORD_MODAL.on('shown.bs.modal', () => {
+        WORD_INPUT.focus();
+    });
     READY_BTN.addEventListener("click", toggleReady);
 };

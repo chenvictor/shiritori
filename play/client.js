@@ -21,22 +21,45 @@ const Client = new function() {
         let data = JSON.parse(e.data);
         console.debug("SSE Received: %o", data);
         switch(data.response) {
-            case ResponseCode.EVENT.INITIALIZE:
+            case Code.PLAYER.INIT:
                 init(data);
                 break;
-            case ResponseCode.EVENT.PLAYERS_UPDATED:
+            case Code.BROADCAST.PLAYERS_UPDATED:
                 setPlayers(data);
                 break;
-            case ResponseCode.EVENT.READY_STATE_RECEIVED:
+            case Code.PLAYER.READY_STATE_RECEIVED:
                 Interface.setReadyButtonEnabled(true);
                 break;
-            case ResponseCode.EVENT.READY_STATE_UPDATED:
+            case Code.BROADCAST.READY_STATE_UPDATED:
                 Interface.setReadyStates(data.readyStates);
                 break;
-            case ResponseCode.MISSING.LOBBY:
-            case ResponseCode.MISSING.PLAYER:
-            case ResponseCode.INVALID.LOBBY_ID:
-            case ResponseCode.INVALID.PLAYER_ID:
+            case Code.BROADCAST.GAME_START:
+                Interface.gameStart();
+                break;
+            case Code.BROADCAST.GAME_END:
+                Interface.gameEnd();
+                break;
+            case ShiriCode.PLAYER_TURN:
+                Interface.playerTurn(data.player);
+                break;
+            case ShiriCode.YOUR_TURN:
+                let lastWord = data.lastWord;
+                Interface.showWordModal(lastWord);
+                break;
+            case ShiriCode.PLAYER_LOST:
+                Interface.playerEliminated(data.player);
+                break;
+            case ShiriCode.MOVE_MADE:
+                Interface.message(data.player + " played the word: " + data.word);
+                break;
+            case ShiriCode.FEEDBACK:
+                CustomAlert.showMessage("You were eliminated! " + data.feedback);
+                break;
+            case ShiriCode.WINNER:
+                CustomAlert.showMessage("The winner is: " + data.winner);
+                break;
+            default:
+                console.error("Received code: " + data.response);
                 let main = document.getElementById("main");
                 main.classList.remove("visible");
                 main.classList.add("invisible");
@@ -58,16 +81,12 @@ const Client = new function() {
         Interface.setPlayers(data.playerList);
     };
 
-    let readyStateTimeout = null;
-
     this.readyStateChanged = function(state) {
-        if (readyStateTimeout !== null) {
-            clearTimeout(readyStateTimeout);
-        }
-        // Using a timeout to avoid spamming clicks
-        readyStateTimeout = setTimeout(() => {
-            ShiriServer.notifyReadyState(lobbyId, clientId, state);
-        }, 400);
+        ShiriServer.notifyReadyState(lobbyId, clientId, state);
     };
+
+    this.submitWord = function(word) {
+        ShiriServer.submitWord(lobbyId, clientId, word);
+    }
 
 };
