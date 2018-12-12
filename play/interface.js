@@ -81,7 +81,11 @@ const Interface = new function() {
             READY_BTN.classList.add(ready ? "btn-success" : "btn-outline-danger");
             READY_BTN.innerHTML = ready ? "Ready" : "Not Ready";
             READY_BTN.blur();   //remove focus
-            Client.readyStateChanged(ready);
+            Shiri.getClient().notifyReadyState(ready).then(() => {
+                this.setReadyButtonEnabled(true);
+            }).catch((error) => {
+                console.error(error);
+            });
         }
 
         this.setReadyButtonEnabled(false);  // Set disabled, until server responds

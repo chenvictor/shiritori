@@ -3,16 +3,20 @@ const WordForm = new function() {
     const FORM = document.getElementById("wordForm");
     const REGEX = '\[\u3040-\u309f\]';
 
-    let enabled = true;
-
     this.submit = function() {
         INPUT.classList.remove("is-invalid");
         let val = INPUT.value;
         let valid = validate(val);
         if (valid) {
-            Client.submitWord(val);
-            Interface.hideWordModal();
-            FORM.blur();
+            Shiri.getClient().sendCustom({
+                subtype:    "word",
+                word:       val,
+            }).then(() => {
+                Interface.hideWordModal();
+                FORM.blur();
+            }).catch((error) => {
+                console.error(error);
+            });
         } else {
             showError();
         }

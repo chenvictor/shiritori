@@ -2,6 +2,9 @@
 
 const Auth = new function() {
 
+    let lobbyId;
+    let usingPass = true;
+
     // Fetch the lobby id from query params
     let getLobbyId = function() {
         let query = window.location.search.substring(1);
@@ -16,8 +19,6 @@ const Auth = new function() {
         return false;
     };
 
-    let lobbyId;
-
     let init = function() {
         lobbyId = getLobbyId();
 
@@ -26,16 +27,17 @@ const Auth = new function() {
             CustomAlert.showMessage("Error: Missing lobbyId!");
         } else {
             console.log("Loaded - LobbyId: %s, validating", lobbyId);
-            ShiriServer.validateLobby(lobbyId, onResult);
-        }
-    };
-
-    let onResult = function(isValid) {
-        if (isValid) {
-            $("#authModal").modal('show');
-        } else {
-            // Notify user
-            CustomAlert.showMessage("This game session is invalid or has expired");
+            QuickLobby.checkLobby(lobbyId).then((hasPassword) => {
+                if (!hasPassword) {
+                    document.getElementById('passwordFormGroup').style.display = "none";
+                    usingPass = false;
+                } else {
+                    //stub
+                }
+                $('#authModal').modal('show');
+            }).catch((error) => {
+                CustomAlert.showMessage(error);
+            });
         }
     };
 
@@ -47,7 +49,7 @@ const Auth = new function() {
         inputName.classList.remove("is-invalid");
         let pass = inputPass.value;
         let name = inputName.value.trim();
-        if (pass.length === 0) {
+        if (usingPass && pass.length === 0) {
             // invalid
             inputPass.classList.add("is-invalid");
             return;
@@ -57,7 +59,12 @@ const Auth = new function() {
             inputName.classList.add("is-invalid");
             return;
         }
-        ShiriServer.requestClient(lobbyId, inputPass.value, inputName.value, onXHRResponse);
+        QuickLobby.joinLobby(lobbyId, pass, name).then((response) => {
+            $('#authModal').modal('hide');
+            Shiri.setClient(response);
+        }).catch((error) => {
+            CustomAlert.showMessage(error);
+        });
     };
 
     let onXHRResponse = function(res) {

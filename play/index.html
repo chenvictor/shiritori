@@ -96,9 +96,8 @@
                 <h5 class="modal-title" id="authModalTitle">Authentication</h5>
             </div>
             <div class="modal-body">
-                <h6>Enter the lobby password, as well as a display name.</h6>
                 <form class="needs-validation" onsubmit="Auth.submit(); return false;" novalidate>
-                    <div class="form-group">
+                    <div class="form-group" id="passwordFormGroup">
                         <label for="inputPass">Lobby Password</label>
                         <input type="password" class="form-control" id="inputPass" placeholder="password123" maxlength="15">
                         <div class="invalid-feedback">
@@ -207,12 +206,12 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 
 <!--Custom JS-->
-<script src="../js/lobby-codes.js"></script>
+<script src="../js/shiri-codes.js"></script>
+<script src="shiri.js"></script>
 <script src="../js/custom-alert.js"></script>
-<script src="../js/st-server.js"></script>
+<script src="../js/ql-client.js"></script>
 <script src="../js/loading.js"></script>
 <script src="word-form.js"></script>
-<script src="client.js"></script>
 <script src="auth.js"></script>
 <script src="interface.js"></script>
 <script>

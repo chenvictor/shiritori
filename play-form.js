@@ -2,6 +2,7 @@ const PlayForm = new function() {
     const ERROR_LOBBY_BLANK = 0;
     const ERROR_PASS_BLANK = 1;
 
+    const usingPassword = document.getElementById("hasPassword");
     let playModal;
     let loadingModal;
     let lobby;
@@ -13,7 +14,12 @@ const PlayForm = new function() {
         let payload = getPayload();
         let res = validate(payload);
         if (res === true) {
-            sendForm(payload);
+            QuickLobby.requestLobby(payload.name, payload.pass).then((lobbyId) => {
+                window.location.assign("play/index.html?lobbyId=" + lobbyId);
+            }).catch((error) => {
+                loadingModal.modal('hide');
+                CustomAlert.showMessage(error);
+            });
         } else {
             showError(res);
         }
@@ -31,7 +37,7 @@ const PlayForm = new function() {
         return {
             type: "start",
             name: lobby.value,
-            pass: pass.value,
+            pass: usingPassword.checked ? pass.value : false,
         };
     };
 
@@ -41,7 +47,7 @@ const PlayForm = new function() {
         if(payload.name.length === 0) {
             return ERROR_LOBBY_BLANK;
         }
-        if(payload.pass.length === 0) {
+        if(payload.pass !== false && payload.pass.length === 0) {
             return ERROR_PASS_BLANK;
         }
         return true;
@@ -59,28 +65,6 @@ const PlayForm = new function() {
                 pass.focus();
                 break;
         }
-    };
-
-    let sendForm = function(payload) {
-        console.log("sending form");
-        console.log(payload);
-        playModal.modal('hide');
-        loadingModal.modal('show');
-        setTimeout(() => {
-            ShiriServer.requestLobby(payload, (msg) => {
-                loadingModal.modal('hide');
-                CustomAlert.showMessage(msg);
-            }, (response) => {
-                loadingModal.modal('hide');
-                let parsed = JSON.parse(response);
-                if (parsed.response === Code.SUCCESS) {
-                    let id = parsed.message;
-                    window.location.assign("play/index.html?lobbyId=" + id);
-                } else {
-                    CustomAlert.showMessage(response);
-                }
-            });
-        }, 500);
     };
 };
 window.addEventListener("load", () => {
